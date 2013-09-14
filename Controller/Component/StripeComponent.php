@@ -215,11 +215,20 @@ class StripeComponent extends Component {
 		Stripe::setApiKey($this->key);
 		$error = null;
 
+        $stripeData = array(
+            'card' => $data['stripeToken'],
+            'description' => $data['description']
+        );
+
+        if(isset($data['email'])) {
+            $stripeData['email'] = $data['email'];
+        }
+        if(isset($data['plan'])) {
+            $stripeData['plan'] = $data['plan'];
+        }
+
 		try {
-			$customer = Stripe_Customer::create(array(
-				'card' => $data['stripeToken'],
-				'description' => $data['description']
-			));
+			$customer = Stripe_Customer::create($stripeData);
 
 		} catch (Stripe_InvalidRequestError $e) {
 			$body = $e->getJsonBody();
