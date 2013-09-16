@@ -272,30 +272,20 @@ class StripeComponent extends Component {
      * we'll update it to the new plan and optionally prorate the price we charge next
      * month to make up for any price changes.
      *
-     * @param array	$data Must contain 'customer', 'plan'.
+     * @param string $customerId Stripe customer id
+     * @param array	 $subscription Must contain 'plan'.
      * @return array $subscription if success, string $error if failure.
      * @throws CakeException
      * @throws Exception
      */
-    public function updateSubscription($data) {
-
-        // $data MUST contain 'stripeToken' to create customer.
-        if (!isset($data['stripeToken'])) {
-            throw new CakeException('The required stripeToken field is missing.');
-        }
-
-        // set the (optional) description field to null if not set in $data
-        if (!isset($data['description'])) {
-            $data['description'] = null;
-        }
+    public function updateSubscription($customerId, $subscription) {
 
         Stripe::setApiKey($this->key);
         $error = null;
 
-
         try {
-            $customer = Stripe_Customer::retrieve($data['customer']);
-            $subscription = $customer->updateSubscription($data);
+            $customer = Stripe_Customer::retrieve($customerId);
+            $res = $customer->updateSubscription($subscription);
 
         } catch (Stripe_InvalidRequestError $e) {
             $body = $e->getJsonBody();
@@ -328,7 +318,7 @@ class StripeComponent extends Component {
             return (string)$error;
         }
 
-        return $subscription;
+        return $res;
     }
 
 
