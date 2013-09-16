@@ -266,6 +266,71 @@ class StripeComponent extends Component {
         return array('customer' => $customer->id);
     }
 
+    /**
+     * Subscribes a customer to a plan, meaning the customer will be billed monthly
+     * starting from signup. If the customer already has an active subscription,
+     * we'll update it to the new plan and optionally prorate the price we charge next
+     * month to make up for any price changes.
+     *
+     * @param array	$data Must contain 'customer', 'plan'.
+     * @return array $subscription if success, string $error if failure.
+     * @throws CakeException
+     * @throws Exception
+     */
+    public function updateSubscription($data) {
+
+        // $data MUST contain 'stripeToken' to create customer.
+        if (!isset($data['stripeToken'])) {
+            throw new CakeException('The required stripeToken field is missing.');
+        }
+
+        // set the (optional) description field to null if not set in $data
+        if (!isset($data['description'])) {
+            $data['description'] = null;
+        }
+
+        Stripe::setApiKey($this->key);
+        $error = null;
+
+
+        try {
+            $customer = Stripe_Customer::retrieve($data['customer']);
+            $subscription = $customer->updateSubscription($data);
+
+        } catch (Stripe_InvalidRequestError $e) {
+            $body = $e->getJsonBody();
+            $err = $body['error'];
+            CakeLog::error(
+                'Customer::Stripe_InvalidRequestError: ' . $err['type'] . ': ' . $err['message'],
+                'stripe'
+            );
+            $error = $err['message'];
+
+        } catch (Stripe_AuthenticationError $e) {
+            CakeLog::error('Customer::Stripe_AuthenticationError: API key rejected!', 'stripe');
+            $error = 'Payment processor API key error.';
+
+        } catch (Stripe_ApiConnectionError $e) {
+            CakeLog::error('Customer::Stripe_ApiConnectionError: Stripe could not be reached.', 'stripe');
+            $error = 'Network communication with payment processor failed, try again later';
+
+        } catch (Stripe_Error $e) {
+            CakeLog::error('Customer::Stripe_Error: Stripe could be down.', 'stripe');
+            $error = 'Payment processor error, try again later.';
+
+        } catch (Exception $e) {
+            CakeLog::error('Customer::Exception: Unknown error.', 'stripe');
+            $error = 'There was an error, try again later.';
+        }
+
+        if ($error !== null) {
+            // an error is always a string
+            return (string)$error;
+        }
+
+        return $subscription;
+    }
+
 
     /**
      * The retrieveCustomer method prepares data for Stripe_Customer::retrieve and attempts to
