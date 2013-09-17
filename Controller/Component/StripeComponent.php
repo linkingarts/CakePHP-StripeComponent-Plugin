@@ -323,6 +323,57 @@ class StripeComponent extends Component {
 
 
     /**
+     * Cancels the subscription if it exists.
+     *
+     * @param string $customerId Stripe customer id
+     * @return array $subscription if success, string $error if failure.
+     * @throws CakeException
+     * @throws Exception
+     */
+    public function cancelSubscription($customerId) {
+
+        Stripe::setApiKey($this->key);
+        $error = null;
+
+        try {
+            $customer = Stripe_Customer::retrieve($customerId);
+            $res = $customer->cancelSubscription();
+
+        } catch (Stripe_InvalidRequestError $e) {
+            $body = $e->getJsonBody();
+            $err = $body['error'];
+            CakeLog::error(
+                'Customer::Stripe_InvalidRequestError: ' . $err['type'] . ': ' . $err['message'],
+                'stripe'
+            );
+            $error = $err['message'];
+
+        } catch (Stripe_AuthenticationError $e) {
+            CakeLog::error('Customer::Stripe_AuthenticationError: API key rejected!', 'stripe');
+            $error = 'Payment processor API key error.';
+
+        } catch (Stripe_ApiConnectionError $e) {
+            CakeLog::error('Customer::Stripe_ApiConnectionError: Stripe could not be reached.', 'stripe');
+            $error = 'Network communication with payment processor failed, try again later';
+
+        } catch (Stripe_Error $e) {
+            CakeLog::error('Customer::Stripe_Error: Stripe could be down.', 'stripe');
+            $error = 'Payment processor error, try again later.';
+
+        } catch (Exception $e) {
+            CakeLog::error('Customer::Exception: Unknown error.', 'stripe');
+            $error = 'There was an error, try again later.';
+        }
+
+        if ($error !== null) {
+            // an error is always a string
+            return (string)$error;
+        }
+
+        return $res;
+    }
+
+    /**
      * The retrieveCustomer method prepares data for Stripe_Customer::retrieve and attempts to
      * retrieve a customer.
      *
