@@ -7,9 +7,9 @@
  * PHP version 5
  *
  * @package		StripeComponent
- * @author		Gregory Gaskill <gregory@chronon.com>
+ * @author		Daniel Martuszewski <daniel.martuszewski@gmail.com> forked from Gregory Gaskill <gregory@chronon.com>
  * @license		MIT License (http://www.opensource.org/licenses/mit-license.php)
- * @link		https://github.com/chronon/CakePHP-StripeComponent-Plugin
+ * @link		https://github.com/gcdreak/CakePHP-StripeComponent-Plugin
  */
 
 App::uses('Component', 'Controller');

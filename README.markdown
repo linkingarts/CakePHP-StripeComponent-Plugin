@@ -21,7 +21,7 @@ In your project `composer.json` file:
 ```
 {
 	"require": {
-		"chronon/stripe": "*"
+		"gcdreak/stripe": "*"
 	},
 	"config": {
         "vendor-dir": "Vendor"
@@ -44,7 +44,7 @@ You will need the component (packaged as a plugin), and Stripe's PHP library (no
 Stripe library needs to be in this plugin's Vendor directory and must be named 'Stripe'. Using git, 
 something like this:
 
-	git clone git@github.com:chronon/CakePHP-StripeComponent-Plugin.git APP/Plugin/Stripe  
+	git clone git@github.com:gcdreak/CakePHP-StripeComponent-Plugin.git APP/Plugin/Stripe
 	git clone git://github.com/stripe/stripe-php.git APP/Plugin/Stripe/Vendor/Stripe
 
 Configuration:
