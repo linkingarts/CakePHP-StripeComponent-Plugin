@@ -69,19 +69,19 @@ class StripeComponent extends Component {
                 'file' => 'Stripe' . DS . 'lib' . DS . 'Stripe.php')
         );
         if (!class_exists('Stripe')) {
-            throw new CakeException('Stripe API Libaray is missing or could not be loaded.');
-        }
-
-        // set the Stripe API key
-        $this->key = Configure::read('Stripe.' . $this->mode . 'Secret');
-        if (!$this->key) {
-            throw new CakeException('Stripe API key is not set.');
+            throw new CakeException('Stripe API Library is missing or could not be loaded.');
         }
 
         // if mode is set in bootstrap.php, use it. otherwise, Test.
         $mode = Configure::read('Stripe.mode');
         if ($mode) {
             $this->mode = $mode;
+        }
+
+        // set the Stripe API key
+        $this->key = Configure::read('Stripe.' . $this->mode . 'Secret');
+        if (!$this->key) {
+            throw new CakeException('Stripe API key is not set.');
         }
 
         // if currency is set in bootstrap.php, use it. otherwise, usd.
